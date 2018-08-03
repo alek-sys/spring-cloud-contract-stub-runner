@@ -40,15 +40,42 @@ describe('ProcessRunner', () => {
         done();
     });
 
+    it('should output stderr into console.error', () => {
+        const mockStderr = createMockedStream();
+        childProcess.exec = () => createMockProcess(createMockedStream(), mockStderr);
+        console.error = jest.fn();
+
+        stubRunner.run();
+
+        mockStderr.emit('data', 'Error in the called process');
+
+        expect(console.error).toHaveBeenCalledWith('Error in the called process');
+    });
+
+    it('should reject when stderr output is complete', (done) => {
+        const expectedStderrOutput = 'Error in the called process';
+        const mockStderr = createMockedStream();
+        childProcess.exec = () => createMockProcess(createMockedStream(), mockStderr);
+        console.error = jest.fn();
+
+        stubRunner.run().catch((err) => {
+            expect(err).toEqual(expectedStderrOutput);
+            done();
+        });
+
+        mockStderr.emit('end', expectedStderrOutput);
+    });
+
     function createMockedStream() {
         const mockedStream = new Readable();
         mockedStream._read = () => {};
         return mockedStream;
     }
 
-    function createMockProcess(mockStdout = createMockedStream()) {
+    function createMockProcess(mockStdout = createMockedStream(), stderr = createMockedStream()) {
         return {
-            stdout: mockStdout
+            stdout: mockStdout,
+            stderr: stderr
         };
     }
 });

@@ -7,7 +7,7 @@ class ProcessRunner {
     }
 
     run() {
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             const process = childProcess.exec(this.cmd);
 
             process.stdout.on('data', (data) => {
@@ -15,6 +15,9 @@ class ProcessRunner {
                     resolve();
                 }
             });
+
+            process.stderr.on('data', console.error);
+            process.stderr.on('end', reject);
         });
     }
 }
