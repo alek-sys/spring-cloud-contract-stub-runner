@@ -6,12 +6,12 @@ describe('ProcessRunner', () => {
 
     const expectedCmd = 'echo "hello world"';
     const expectedOutput = 'expected output';
-    const stubRunner = new ProcessRunner(expectedCmd, expectedOutput);
+    const processRunner = new ProcessRunner(expectedCmd, expectedOutput);
 
     it('should start a process when invoked', () => {
         childProcess.exec = jest.fn(() => createMockProcess());
 
-        stubRunner.run();
+        processRunner.run();
 
         expect(childProcess.exec).toHaveBeenCalledWith(expectedCmd);
     });
@@ -20,7 +20,7 @@ describe('ProcessRunner', () => {
         const mockStdout = createMockedStream();
         childProcess.exec = () => createMockProcess(mockStdout);
 
-        stubRunner.run().then(() => {
+        processRunner.run().then(() => {
             done();
         });
 
@@ -31,7 +31,7 @@ describe('ProcessRunner', () => {
         const mockStdout = createMockedStream();
         childProcess.exec = () => createMockProcess(mockStdout);
 
-        stubRunner.run().then(() => {
+        processRunner.run().then(() => {
             fail('Expected output is not provided, but promise resolved!');
             done();
         });
@@ -45,7 +45,7 @@ describe('ProcessRunner', () => {
         childProcess.exec = () => createMockProcess(createMockedStream(), mockStderr);
         console.error = jest.fn();
 
-        stubRunner.run();
+        processRunner.run();
 
         mockStderr.emit('data', 'Error in the called process');
 
@@ -58,12 +58,40 @@ describe('ProcessRunner', () => {
         childProcess.exec = () => createMockProcess(createMockedStream(), mockStderr);
         console.error = jest.fn();
 
-        stubRunner.run().catch((err) => {
+        processRunner.run().catch((err) => {
             expect(err).toEqual(expectedStderrOutput);
             done();
         });
 
         mockStderr.emit('end', expectedStderrOutput);
+    });
+
+    it('should output stdout into console.log if showOutput is enabled', () => {
+        const mockStdout = createMockedStream();
+        childProcess.exec = () => createMockProcess(mockStdout);
+        console.log = jest.fn();
+
+        const processRunnerWithOutput = new ProcessRunner(expectedCmd, expectedOutput, { showOutput: true });
+        processRunnerWithOutput.run();
+
+        const expectedStdoutOutput = 'foo';
+        mockStdout.emit('data', expectedStdoutOutput);
+
+        expect(console.log).toHaveBeenCalledWith(expectedStdoutOutput);
+    });
+
+    it('should not output stdout into console.log if showOutput is disabled', () => {
+        const mockStdout = createMockedStream();
+        childProcess.exec = () => createMockProcess(mockStdout);
+        console.log = jest.fn();
+
+        const processRunnerWithoutOutput = new ProcessRunner(expectedCmd, expectedOutput, { showOutput: false });
+        processRunnerWithoutOutput.run();
+
+        const expectedStdoutOutput = 'foo';
+        mockStdout.emit('data', expectedStdoutOutput);
+
+        expect(console.log).not.toHaveBeenCalledWith(expectedStdoutOutput);
     });
 
     function createMockedStream() {
