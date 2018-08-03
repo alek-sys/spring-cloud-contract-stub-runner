@@ -25,6 +25,15 @@ describe('ProcessRunner', () => {
         expect(childProcess.exec).toHaveBeenCalledWith(expectedCmd);
     });
 
+    it('should resolve with a stared process instance', (done) => {
+        processRunner.run().then((process) => {
+            expect(process).toBe(mockProcess);
+            done();
+        });
+
+        mockStdout.emit('data', expectedOutput);
+    });
+
     it('should resolve when output includes an expected string', (done) => {
         processRunner.run().then(() => {
             done();

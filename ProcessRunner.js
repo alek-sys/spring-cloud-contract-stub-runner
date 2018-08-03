@@ -20,7 +20,7 @@ class ProcessRunner {
                 }
 
                 if (data.includes(this.expectedOutput)) {
-                    resolve();
+                    resolve(this.process);
                 }
             });
 
