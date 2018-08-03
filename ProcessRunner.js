@@ -12,9 +12,9 @@ class ProcessRunner {
 
     run() {
         return new Promise((resolve, reject) => {
-            const process = childProcess.exec(this.cmd);
+            this.process = childProcess.exec(this.cmd);
 
-            process.stdout.on('data', (data) => {
+            this.process.stdout.on('data', (data) => {
                 if (this.showOutput) {
                     console.log(data);
                 }
@@ -24,9 +24,15 @@ class ProcessRunner {
                 }
             });
 
-            process.stderr.on('data', console.error);
-            process.stderr.on('end', reject);
+            this.process.stderr.on('data', console.error);
+            this.process.stderr.on('end', reject);
         });
+    }
+
+    kill() {
+        if (this.process) {
+            this.process.kill();
+        }
     }
 }
 

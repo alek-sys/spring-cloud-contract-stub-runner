@@ -10,12 +10,14 @@ describe('ProcessRunner', () => {
 
     let mockStdout;
     let mockStderr;
+    let mockProcess;
 
     beforeEach(() => {
         mockStdout = createMockedStream();
         mockStderr = createMockedStream();
+        mockProcess = createMockProcess(mockStdout, mockStderr);
 
-        childProcess.exec = jest.fn(() => createMockProcess(mockStdout, mockStderr));
+        childProcess.exec = jest.fn(() => mockProcess);
     });
 
     it('should start a process when invoked', () => {
@@ -86,6 +88,12 @@ describe('ProcessRunner', () => {
         expect(console.log).not.toHaveBeenCalledWith(expectedStdoutOutput);
     });
 
+    it('should kill the process', () => {
+        processRunner.run();
+        processRunner.kill();
+        expect(mockProcess.kill).toHaveBeenCalled();
+    });
+
     function createMockedStream() {
         const mockedStream = new Readable();
         mockedStream._read = () => {};
@@ -95,7 +103,8 @@ describe('ProcessRunner', () => {
     function createMockProcess(mockStdout, stderr) {
         return {
             stdout: mockStdout,
-            stderr: stderr
+            stderr: stderr,
+            kill: jest.fn()
         };
     }
 });
