@@ -1,12 +1,11 @@
 const childProcess = require('child_process');
-const { ProcessRunner }  = require('./ProcessRunner');
+const { runAndWaitForOutput }  = require('./processRunner');
 const { Readable } = require('stream');
 
 describe('ProcessRunner', () => {
 
-    const expectedCmd = 'echo "hello world"';
+    const cmd = 'echo "hello world"';
     const expectedOutput = 'expected output';
-    const processRunner = new ProcessRunner(expectedCmd, expectedOutput);
 
     let mockStdout;
     let mockStderr;
@@ -21,12 +20,12 @@ describe('ProcessRunner', () => {
     });
 
     it('should start a process when invoked', () => {
-        processRunner.run();
-        expect(childProcess.exec).toHaveBeenCalledWith(expectedCmd);
+        runAndWaitForOutput(cmd, expectedOutput);
+        expect(childProcess.exec).toHaveBeenCalledWith(cmd);
     });
 
     it('should resolve with a stared process instance', (done) => {
-        processRunner.run().then((process) => {
+        runAndWaitForOutput(cmd, expectedOutput).then((process) => {
             expect(process).toBe(mockProcess);
             done();
         });
@@ -35,7 +34,7 @@ describe('ProcessRunner', () => {
     });
 
     it('should resolve when output includes an expected string', (done) => {
-        processRunner.run().then(() => {
+        runAndWaitForOutput(cmd, expectedOutput).then(() => {
             done();
         });
 
@@ -43,7 +42,7 @@ describe('ProcessRunner', () => {
     });
 
     it('should not resolve when output does not include an expected string', (done) => {
-        processRunner.run().then(() => {
+        runAndWaitForOutput(cmd, expectedOutput).then(() => {
             fail('Expected output is not provided, but promise resolved!');
             done();
         });
@@ -55,7 +54,7 @@ describe('ProcessRunner', () => {
     it('should output stderr into console.error', () => {
         console.error = jest.fn();
 
-        processRunner.run();
+        runAndWaitForOutput(cmd, expectedOutput);
         mockStderr.emit('data', 'Error in the called process');
 
         expect(console.error).toHaveBeenCalledWith('Error in the called process');
@@ -65,7 +64,7 @@ describe('ProcessRunner', () => {
         const expectedStderrOutput = 'Error in the called process';
         console.error = jest.fn();
 
-        processRunner.run().catch((err) => {
+        runAndWaitForOutput(cmd, expectedOutput).catch((err) => {
             expect(err).toEqual(expectedStderrOutput);
             done();
         });
@@ -76,8 +75,7 @@ describe('ProcessRunner', () => {
     it('should output stdout into console.log if showOutput is enabled', () => {
         console.log = jest.fn();
 
-        const processRunnerWithOutput = new ProcessRunner(expectedCmd, expectedOutput, { showOutput: true });
-        processRunnerWithOutput.run();
+        runAndWaitForOutput(cmd, expectedOutput, true);
 
         const expectedStdoutOutput = 'foo';
         mockStdout.emit('data', expectedStdoutOutput);
@@ -88,19 +86,12 @@ describe('ProcessRunner', () => {
     it('should not output stdout into console.log if showOutput is disabled', () => {
         console.log = jest.fn();
 
-        const processRunnerWithoutOutput = new ProcessRunner(expectedCmd, expectedOutput, { showOutput: false });
-        processRunnerWithoutOutput.run();
+        runAndWaitForOutput(cmd, expectedOutput);
 
         const expectedStdoutOutput = 'foo';
         mockStdout.emit('data', expectedStdoutOutput);
 
         expect(console.log).not.toHaveBeenCalledWith(expectedStdoutOutput);
-    });
-
-    it('should kill the process', () => {
-        processRunner.run();
-        processRunner.kill();
-        expect(mockProcess.kill).toHaveBeenCalled();
     });
 
     function createMockedStream() {

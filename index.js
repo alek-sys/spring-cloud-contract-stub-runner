@@ -1,5 +1,5 @@
-const { ProcessRunner } = require('./ProcessRunner');
+const { runAndWaitForOutput } = require('./processRunner');
 
 module.exports = {
-    ProcessRunner
+    runAndWaitForOutput
 };
