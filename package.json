@@ -14,7 +14,8 @@
   "author": "Alexey Nesterov",
   "license": "MIT",
   "devDependencies": {
-    "jest": "23.4.2"
+    "jest": "23.4.2",
+    "nock": "9.4.4"
   },
   "dependencies": {
     "isomorphic-fetch": "2.2.1"

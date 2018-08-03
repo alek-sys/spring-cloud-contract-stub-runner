@@ -1,5 +1,5 @@
-const { runAndWaitForOutput } = require('./processRunner');
+const { runStubs } = require('./stubRunner');
 
 module.exports = {
-    runAndWaitForOutput
+    runStubs
 };

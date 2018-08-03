@@ -1,6 +1,6 @@
 const childProcess = require('child_process');
 
-function runAndWaitForOutput(cmd, expectedOutput, showOutput = false) {
+async function runAndWaitForOutput(cmd, expectedOutput, showOutput = false) {
     return new Promise((resolve, reject) => {
         const process = childProcess.exec(cmd);
 
