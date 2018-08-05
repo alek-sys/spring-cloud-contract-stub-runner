@@ -14,8 +14,9 @@ async function runAndWaitForOutput(cmd, expectedOutput, showOutput = false) {
             }
         });
 
-        process.stderr.on('data', console.error);
-        process.stderr.on('end', reject);
+        let err = '';
+        process.stderr.on('data', (data) => err += data);
+        process.stderr.on('end', () => reject(err));
     });
 }
 
