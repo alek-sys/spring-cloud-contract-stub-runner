@@ -1,5 +1,5 @@
 {
-  "name": "spring-cloud-contracts-stub-runner",
+  "name": "spring-cloud-contract-stub-runner",
   "version": "0.0.2",
   "description": "A helper to run Spring Cloud Contracts as a part of test suite run",
   "main": "index.js",
@@ -12,6 +12,7 @@
     "contracts"
   ],
   "author": "Alexey Nesterov",
+  "repository": "https://github.com/alek-sys/spring-cloud-contract-stub-runner",
   "license": "MIT",
   "devDependencies": {
     "jest": "23.4.2",
