@@ -10,7 +10,8 @@ const MAVEN_STUBRUNNER_DOWNLOAD_URL = 'https://repo1.maven.org/maven2/org/spring
 function getDefaultOptions() {
     return {
         pathToStubRunnerJar: getPathToStubRunnerJarInTmpdir(),
-        stubRunnerJarDownloadUrl: MAVEN_STUBRUNNER_DOWNLOAD_URL
+        stubRunnerJarDownloadUrl: MAVEN_STUBRUNNER_DOWNLOAD_URL,
+        showOutput: false
     };
 }
 
@@ -37,13 +38,15 @@ You can also download it manually from ${downloadUrl}`);
     });
 }
 
-async function runStubs(stubIds, options = getDefaultOptions()) {
+async function runStubs(stubIds, userOptions) {
+    const options = Object.assign({}, getDefaultOptions(), userOptions);
+
     if (!jarExists(options.pathToStubRunnerJar)) {
         await downloadJar(options.stubRunnerJarDownloadUrl, options.pathToStubRunnerJar);
     }
 
     const cmd = `java -DstubRunner.ids=${stubIds} -DstubRunner.stubsMode=LOCAL -jar ${options.pathToStubRunnerJar}`;
-    return processRunner.runAndWaitForOutput(cmd, EXPECTED_STUBRUNNER_OUTPUT);
+    return processRunner.runAndWaitForOutput(cmd, EXPECTED_STUBRUNNER_OUTPUT, options.showOutput);
 }
 
 module.exports = {

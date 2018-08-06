@@ -31,7 +31,7 @@ describe('StubRunner', () => {
             stubRunnerJarDownloadUrl: fakeDownloadUrl
         });
 
-        expect(processRunner.runAndWaitForOutput).toHaveBeenCalledWith(expectedCmd, expectedOutput);
+        expect(processRunner.runAndWaitForOutput).toHaveBeenCalledWith(expectedCmd, expectedOutput, false);
     });
 
     it('should download stub runner jar if not present', async (done) => {
@@ -46,5 +46,18 @@ describe('StubRunner', () => {
         const process = await runStubs(stubIds);
 
         expect(process).toEqual(fakeProcess);
+    });
+
+    it('should pass showOutput option to process runner', async () => {
+        const jarPath = '/tmp/stub-runner.jar';
+        const expectedCmd = `java -DstubRunner.ids=${stubIds} -DstubRunner.stubsMode=LOCAL -jar ${jarPath}`;
+
+        await runStubs(stubIds, {
+            pathToStubRunnerJar: jarPath,
+            stubRunnerJarDownloadUrl: fakeDownloadUrl,
+            showOutput: true
+        });
+
+        expect(processRunner.runAndWaitForOutput).toHaveBeenCalledWith(expectedCmd, expectedOutput, true);
     });
 });
