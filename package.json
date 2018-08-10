@@ -1,6 +1,6 @@
 {
   "name": "spring-cloud-contract-stub-runner",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "A helper to run Spring Cloud Contracts as a part of test suite run",
   "main": "index.js",
   "scripts": {
